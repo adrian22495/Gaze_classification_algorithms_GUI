@@ -83,12 +83,13 @@ for i =0:test.NROUNDS-1
 end
 
 
-%% NH
-%{
+%% NH 
+%
+% Execute NH with all gaze data
 deleteInputNHFiles()
 %Save the input file
 tmp = test.PPos;
-%tmp(tmp(:,1)==0,:) = 0;
+tmp(tmp(:,1)==0,:) = 0;
 
 stamps = [timestamp, tmp];
 csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
@@ -96,13 +97,14 @@ csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
 mainRun;
 %read solution
 NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
-%}
+%
 idx = 1;
 for i =0:test.NROUNDS-1
     for j = 1:test.NSTIMULI
         infIdx = stimuliIdx(idx);
         supIdx = stimuliIdx(idx+1)-1;
-        %        
+        %{
+        % Execute NH algorithm with one stimulus       
         
         deleteInputNHFiles()
         tmp = test.PPos(infIdx:supIdx,:);
@@ -115,7 +117,7 @@ for i =0:test.NROUNDS-1
         %read solution
         NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
 
-        %
+        %}
         
         classificated_stimuli(idx_CS).NHC = test.NHC;
         classificated_stimuli(idx_CS).Algorithm = 'NH';
@@ -124,19 +126,74 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).StimPos = test.SPos(stimuliIdx(idx),:);
         classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
-        classificated_stimuli(idx_CS).Velocities = test.V(infIdx:supIdx); 
+        classificated_stimuli(idx_CS).Velocities = NH_output(infIdx:supIdx,5);         
+        %classificated_stimuli(idx_CS).Velocities = test.V(infIdx:supIdx); 
         classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);       
-        classificated_stimuli(idx_CS).GazePos = [NH_output(:,2),NH_output(:,3)]; %left eye
-        classificated_stimuli(idx_CS).Classification = NH_output(:,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
+        %classificated_stimuli(idx_CS).GazePos = [NH_output(:,2),NH_output(:,3)]; %left eye
+        %classificated_stimuli(idx_CS).Classification = NH_output(:,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
     
-        %classificated_stimuli(idx_CS).GazePos = [NH_output(infIdx:supIdx,2),NH_output(infIdx:supIdx,3)]; %left eye
-        %classificated_stimuli(idx_CS).Classification = NH_output(infIdx:supIdx,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
+        classificated_stimuli(idx_CS).GazePos = [NH_output(infIdx:supIdx,2),NH_output(infIdx:supIdx,3)]; %left eye
+        classificated_stimuli(idx_CS).Classification = NH_output(infIdx:supIdx,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
     
         idx = idx + 1; 
         idx_CS = idx_CS + 1;
     end    
 end
 
+%% NH 
+%{
+% Execute NH with all gaze data
+deleteInputNHFiles()
+%Save the input file
+tmp = test.PPos;
+tmp(tmp(:,1)==0,:) = 0;
+
+stamps = [timestamp, tmp];
+csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
+%Execute NH algorithm
+mainRun;
+%read solution
+NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
+%}
+
+idx = 1;
+for i =0:test.NROUNDS-1
+    for j = 1:test.NSTIMULI
+        infIdx = stimuliIdx(idx);
+        supIdx = stimuliIdx(idx+1)-1;
+        %
+        % Execute NH algorithm with one stimulus       
+        
+        deleteInputNHFiles()
+        tmp = test.PPos(infIdx:supIdx,:);
+        tmp(tmp(:,1)==0,:) = 0;
+
+        stamps = [timestamp(infIdx:supIdx), tmp];
+        csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
+        %Execute NH algorithm
+        mainRun;
+        %read solution
+        NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
+
+        %}
+       
+        classificated_stimuli(idx_CS).NHC = test.NHC;
+        classificated_stimuli(idx_CS).Algorithm = 'NH';
+        classificated_stimuli(idx_CS).Round = i + 1;
+        classificated_stimuli(idx_CS).Stimulus = test.SId(stimuliIdx(idx));
+        classificated_stimuli(idx_CS).StimPos = test.SPos(stimuliIdx(idx),:);
+        classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
+        classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
+        classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);       
+        
+        classificated_stimuli(idx_CS).Velocities = NH_output(:,5);  
+        classificated_stimuli(idx_CS).GazePos = [NH_output(:,2),NH_output(:,3)]; %left eye
+        classificated_stimuli(idx_CS).Classification = NH_output(:,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
+    
+        idx = idx + 1; 
+        idx_CS = idx_CS + 1;
+    end    
+end
 
 %% ID
 
@@ -314,6 +371,7 @@ for i=1:5
 end
 
 %% Manual classification
+%{
 % Victoria
 
 idx = 1;
@@ -422,11 +480,12 @@ for k =1:test.NROUNDS
         idx_CS = idx_CS + 1;
     end
 end
-
 catch     
       errorMessage = sprintf('Error: Esther classification does not exist:\n');
       uiwait(warndlg(errorMessage));
 end
+%}
+
 return;
 
 end

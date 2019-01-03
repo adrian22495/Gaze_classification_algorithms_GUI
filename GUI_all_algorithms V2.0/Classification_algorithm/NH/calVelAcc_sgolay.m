@@ -35,13 +35,20 @@ Y = ETparams.data(i,j).Y;
 ETparams.data(i,j).X = conv(X,g(:,1), 'same');
 ETparams.data(i,j).Y = conv(Y,g(:,1), 'same');
 
+X(X==0) = nan;
+Y(Y==0) = nan;
+
 ETparams.data(i,j).velX = conv(X,g(:,2), 'same');
 ETparams.data(i,j).velY = conv(Y,g(:,2), 'same');
 ETparams.data(i,j).vel = sqrt(ETparams.data(i,j).velX.^2 + ETparams.data(i,j).velY.^2)/angleInPixelsH*ETparams.samplingFreq;
+
+ETparams.data(i,j).vel(1) = ETparams.data(i,j).vel(2);
 ETparams.data(i,j).vel(end) = ETparams.data(i,j).vel(end-1);
 
 ETparams.data(i,j).accX = conv(X,g(:,3), 'same');
 ETparams.data(i,j).accY = conv(Y,g(:,3), 'same');
 ETparams.data(i,j).acc = sqrt(ETparams.data(i,j).accX.^2 + ETparams.data(i,j).accY.^2)/angleInPixelsH*ETparams.samplingFreq^2;
+
+ETparams.data(i,j).acc(1) = ETparams.data(i,j).acc(2);
 ETparams.data(i,j).acc(end) = ETparams.data(i,j).acc(end-1);
 
