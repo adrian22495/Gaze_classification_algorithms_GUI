@@ -103,21 +103,6 @@ for i =0:test.NROUNDS-1
     for j = 1:test.NSTIMULI
         infIdx = stimuliIdx(idx);
         supIdx = stimuliIdx(idx+1)-1;
-        %{
-        % Execute NH algorithm with one stimulus       
-        
-        deleteInputNHFiles()
-        tmp = test.PPos(infIdx:supIdx,:);
-        tmp(tmp(:,1)==0,:) = 0;
-
-        stamps = [timestamp(infIdx:supIdx), tmp];
-        csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
-        %Execute NH algorithm
-        mainRun;
-        %read solution
-        NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
-
-        %}
         
         classificated_stimuli(idx_CS).NHC = test.NHC;
         classificated_stimuli(idx_CS).Algorithm = 'NH';
@@ -127,10 +112,7 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
         classificated_stimuli(idx_CS).Velocities = NH_output(infIdx:supIdx,5);         
-        %classificated_stimuli(idx_CS).Velocities = test.V(infIdx:supIdx); 
         classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);       
-        %classificated_stimuli(idx_CS).GazePos = [NH_output(:,2),NH_output(:,3)]; %left eye
-        %classificated_stimuli(idx_CS).Classification = NH_output(:,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
     
         classificated_stimuli(idx_CS).GazePos = [NH_output(infIdx:supIdx,2),NH_output(infIdx:supIdx,3)]; %left eye
         classificated_stimuli(idx_CS).Classification = NH_output(infIdx:supIdx,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
@@ -140,30 +122,14 @@ for i =0:test.NROUNDS-1
     end    
 end
 
-%% NH 
-%{
-% Execute NH with all gaze data
-deleteInputNHFiles()
-%Save the input file
-tmp = test.PPos;
-tmp(tmp(:,1)==0,:) = 0;
-
-stamps = [timestamp, tmp];
-csvwrite([pwd '\Classification_algorithm\NH\InputData\gazeData.csv' ], stamps);
-%Execute NH algorithm
-mainRun;
-%read solution
-NH_output = csvread([pwd '\Classification_algorithm\NH\DetectionResults\gazeData.csv' ], 1);
-%}
+%% NH per algorithm
 
 idx = 1;
 for i =0:test.NROUNDS-1
     for j = 1:test.NSTIMULI
         infIdx = stimuliIdx(idx);
         supIdx = stimuliIdx(idx+1)-1;
-        %
-        % Execute NH algorithm with one stimulus       
-        
+            
         deleteInputNHFiles()
         tmp = test.PPos(infIdx:supIdx,:);
         tmp(tmp(:,1)==0,:) = 0;
