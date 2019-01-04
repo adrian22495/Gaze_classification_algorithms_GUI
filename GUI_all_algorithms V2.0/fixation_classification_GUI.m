@@ -376,6 +376,8 @@ function plotAlgorithms(handles)
     ylim(handles.algorithmsAxes, [0, 11]);
     xlim(handles.algorithmsAxes, [handles.stimuli(handles.stimulusIdx).Timestamp(1), ...
     handles.stimuli(handles.stimulusIdx).Timestamp(end)]);
+    handles.algorithmsAxes.XGrid = 'on';
+    handles.algorithmsAxes.XMinorGrid = 'on';
     hold(handles.algorithmsAxes, 'off');
 end
 
