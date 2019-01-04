@@ -185,6 +185,18 @@ if (params.f_appv_first_header == 3 && strcmp(header1Data{size(header1Data,2)}, 
     cols.label = 11;    
 end
 
+if (params.f_appv_first_header == 4 && strcmp(header1Data{size(header1Data,2)}, 'Tobii'))
+    eye_string = header1Data{17};
+    if(strcmp(eye_string, 'right'))
+        params.f_EyeSel = 1;
+        f_EyeSel = 1;
+    else
+        params.f_EyeSel = 0;
+        f_EyeSel = 0;
+    end
+    
+end
+
 scale_factor = 96/144;
 if yy >=2018
     scale_factor = header1Data{16};
@@ -296,6 +308,8 @@ if ((Npoints < nSamplesInFirstStimulus) || (NvalidPoints < nSamplesInFirstStimul
     fileIDRej = fopen('./rejected_logs.txt','a');
     fprintf(fileIDRej,'%s - Code 2\n',filename);
     fclose(fileIDRej);
+    stimuli_test = 0;
+    avatar_test =0;
     f_emptyFile = 1;
     return;
 end
@@ -622,7 +636,7 @@ else
     elseif f_appv_first_header == 3
         columnHeader1Data = textscan(header1Data, '%s %d %s %d %d %d %d %d %s %s %f %f %f %d %d %f %s', 'Delimiter',','); % Eye tracker used at the end
     elseif f_appv_first_header == 4
-        columnHeader1Data = textscan(header1Data, '%s %d %s %d %d %d %d %d %s %s %f %f %f %d %d %f %s %s', 'Delimiter',','); % Eye tracker used at the end
+        columnHeader1Data = textscan(header1Data, '%s %d %s %d %d %d %d %d %s %s %f %f %f %d %d %f %s %s %s', 'Delimiter',','); % Eye tracker used at the end
     else
         columnHeader1Data = textscan(header1Data, '%s %d %s %d %d %d %d', 'Delimiter',','); % -CHECK if in fact stimulus duration and DPI are integers
     end

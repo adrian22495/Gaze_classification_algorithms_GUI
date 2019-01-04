@@ -28,8 +28,16 @@ f_EyeSel = 0;
 nRounds = test.NROUNDS;
 nStimuli = test.NSTIMULI;
 
+if(test.params.f_EyeSel == 1)
+    raw_gaze_data = test.RawRightPos;
+else
+    raw_gaze_data = test.RawLeftPos;
+end
+
 if(f_emptyFile)
     error = 1;
+      errorMessage = sprintf('Error al leer el fichero\n');
+      uiwait(warndlg(errorMessage));
     return;
 end
 
@@ -38,7 +46,7 @@ ID = zeros(test.NPoints,1);
 ID(:) = test.NHC;
 distance = zeros(test.NPoints,1);
 distance(:) = 55;
-rawVelocity = computeLinVelocity(test.RawLeftPos(:,1), test.RawLeftPos(:,2), test.T, test.DPI);
+rawVelocity = computeLinVelocity(raw_gaze_data(:,1), raw_gaze_data(:,2), test.T, test.DPI);
 timestamp = test.T*1000; % seconds to ms
 stamps = [ ID, timestamp, test.RawLeftPos(:,1), test.RawRightPos(:,1), test.RawLeftPos(:,2), test.RawRightPos(:,2), distance];
 [output_id,output_total] = BIT(stamps);
@@ -74,7 +82,7 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
         classificated_stimuli(idx_CS).Velocities = test.V(infIdx:supIdx);
         classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);
-        classificated_stimuli(idx_CS).GazePos = [pix2mm(output_total.stamps_fixations(infIdx:supIdx,3), test.DPI), pix2mm(output_total.stamps_fixations(infIdx:supIdx,5), test.DPI)]; %left eye
+        classificated_stimuli(idx_CS).GazePos = test.PPos(infIdx:supIdx,:); 
         classificated_stimuli(idx_CS).Classification = classifications(infIdx:supIdx) %If not 0 is a fixation
     
         idx = idx + 1; 
@@ -112,7 +120,7 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
         classificated_stimuli(idx_CS).Velocities = NH_output(infIdx:supIdx,5);         
-        classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);       
+        classificated_stimuli(idx_CS).RawGazePos = pix2mm(raw_gaze_data(infIdx:supIdx, :), test.DPI);       
     
         classificated_stimuli(idx_CS).GazePos = [NH_output(infIdx:supIdx,2),NH_output(infIdx:supIdx,3)]; %left eye
         classificated_stimuli(idx_CS).Classification = NH_output(infIdx:supIdx,4); % 1 = fixation; 2 = saccade; 3 = glissade; 4 = nan
@@ -150,7 +158,7 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).StimPos = test.SPos(stimuliIdx(idx),:);
         classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
-        classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI);       
+        classificated_stimuli(idx_CS).RawGazePos = pix2mm(raw_gaze_data(infIdx:supIdx, :), test.DPI);       
         
         classificated_stimuli(idx_CS).Velocities = NH_output(:,5);  
         classificated_stimuli(idx_CS).GazePos = [NH_output(:,2),NH_output(:,3)]; %left eye
@@ -176,7 +184,7 @@ for i =0:test.NROUNDS-1
         classificated_stimuli(idx_CS).Stimulus = stim{idx}.sId;
         classificated_stimuli(idx_CS).StimPos = [stim{idx}.sPosX, stim{idx}.sPosY];
         classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
-        classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI); 
+        classificated_stimuli(idx_CS).RawGazePos = pix2mm(raw_gaze_data(infIdx:supIdx, :), test.DPI); 
         if(stim{idx}.valid == 1)
             classificated_stimuli(idx_CS).Timestamp = stim{idx}.T*1000;
             classificated_stimuli(idx_CS).Velocities = stim{idx}.V;
@@ -327,8 +335,8 @@ for i=1:5
             classificated_stimuli(idx_CS).Timestamp = timestamp(infIdx:supIdx);
             classificated_stimuli(idx_CS).RawVelocities = rawVelocity(infIdx:supIdx);
             classificated_stimuli(idx_CS).Velocities = test.V(infIdx:supIdx);
-            classificated_stimuli(idx_CS).RawGazePos = pix2mm(test.RawLeftPos(infIdx:supIdx, :), test.DPI); 
-            classificated_stimuli(idx_CS).GazePos = pix2mm(test.RawLeftPos(infIdx:supIdx,:), test.DPI); %left eye
+            classificated_stimuli(idx_CS).RawGazePos = pix2mm(raw_gaze_data(infIdx:supIdx, :), test.DPI); 
+            classificated_stimuli(idx_CS).GazePos = test.PPos(infIdx:supIdx,:); 
             classificated_stimuli(idx_CS).Classification = classification(infIdx:supIdx); % 1 = fixation
             idx = idx + 1; 
             idx_CS = idx_CS + 1;
@@ -451,6 +459,7 @@ catch
       uiwait(warndlg(errorMessage));
 end
 %}
+'done'
 
 return;
 
