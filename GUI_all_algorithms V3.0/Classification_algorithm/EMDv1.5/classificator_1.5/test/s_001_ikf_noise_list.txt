@@ -1,0 +1,3 @@
+noise number; onset time ms; duration ms
+1; 8.333333; 41.666667
+2; 270216.666667; 8.333333
